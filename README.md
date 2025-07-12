@@ -1,6 +1,6 @@
 # Web Automation Assistant
 
-A Firefox browser extension for recording and replaying web interactions with native messaging support. Record your actions on any webpage and replay them programmatically through a PowerShell-based native messaging host.
+A browser extension for Firefox, Chrome, and Edge that records and replays web interactions with native messaging support. Record your actions on any webpage and replay them programmatically through a PowerShell-based native messaging host.
 
 ## Features
 
@@ -14,7 +14,7 @@ A Firefox browser extension for recording and replaying web interactions with na
 
 ## Installation
 
-### Firefox Extension
+### Browser Extension
 
 1. Clone the repository:
    ```bash
@@ -22,11 +22,21 @@ A Firefox browser extension for recording and replaying web interactions with na
    cd Web-Automation-Assistant
    ```
 
-2. Load the extension in Firefox:
-   - Open Firefox and navigate to `about:debugging`
+2. Load the extension:
+
+   **Firefox:**
+   - Navigate to `about:debugging`
    - Click "This Firefox"
    - Click "Load Temporary Add-on"
    - Select the `manifest.json` file from the `firefox-extension` directory
+
+   **Chrome/Edge:**
+   - Navigate to `chrome://extensions` (Chrome) or `edge://extensions` (Edge)
+   - Enable "Developer mode"
+   - Click "Load unpacked"
+   - Select the `firefox-extension` directory
+   
+   *Note: Chrome and Edge support is coming soon. The extension is currently optimized for Firefox with cross-browser compatibility planned.*
 
 ### Native Messaging Host (Windows)
 
@@ -42,14 +52,14 @@ A Firefox browser extension for recording and replaying web interactions with na
 
 This will:
 - Copy necessary files to `C:\WebAutomation\`
-- Register the native messaging host with Firefox
+- Register the native messaging host with your browser
 - Create desktop shortcuts for the host and test client
 
 ## Usage
 
 ### Recording Scripts
 
-1. Click the extension icon in the Firefox toolbar
+1. Click the extension icon in your browser toolbar
 2. Click "Start Recording"
 3. Perform your actions on the webpage
 4. Click "Stop Recording" when done
@@ -159,12 +169,12 @@ Web-Automation-Assistant/
 
 ### Building from Source
 
-No build process required! The extension uses vanilla JavaScript and can be loaded directly into Firefox.
+No build process required! The extension uses vanilla JavaScript and can be loaded directly into Firefox, Chrome, or Edge.
 
 ## Troubleshooting
 
 ### Extension Not Loading
-- Ensure you're using Firefox 78.0 or later
+- Ensure you're using Firefox 78.0+, Chrome 88+, or Edge 88+
 - Check the browser console for error messages
 - Verify all files are present in the firefox-extension directory
 
@@ -195,6 +205,6 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ## Acknowledgments
 
-- Built for Firefox using the WebExtensions API
+- Built using the WebExtensions API for cross-browser compatibility
 - Native messaging implemented in PowerShell for Windows compatibility
 - Designed for ease of use and reliability
