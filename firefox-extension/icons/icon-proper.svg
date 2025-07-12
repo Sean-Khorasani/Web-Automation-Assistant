@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="128" height="128" viewBox="0 0 128 128" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background circle -->
+  <circle cx="64" cy="64" r="60" fill="#1e40af" stroke="#3b82f6" stroke-width="4"/>
+  
+  <!-- Record button (circle) -->
+  <circle cx="64" cy="64" r="20" fill="#ef4444"/>
+  
+  <!-- Play arrow overlay (semi-transparent) -->
+  <path d="M 54 48 L 54 80 L 80 64 Z" fill="rgba(255,255,255,0.7)"/>
+  
+  <!-- Corner indicator dots -->
+  <circle cx="30" cy="30" r="5" fill="#10b981"/>
+  <circle cx="98" cy="30" r="5" fill="#10b981"/>
+  <circle cx="30" cy="98" r="5" fill="#10b981"/>
+  <circle cx="98" cy="98" r="5" fill="#10b981"/>
+</svg>

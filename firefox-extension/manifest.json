@@ -1,0 +1,81 @@
+{
+  "manifest_version": 2,
+  "name": "Web Automation Assistant",
+  "version": "1.0.0",
+  "description": "Automate web interactions with recording, replay, and AI assistance through native messaging",
+  
+  "permissions": [
+    "activeTab",
+    "storage",
+    "unlimitedStorage",
+    "clipboardRead",
+    "clipboardWrite",
+    "nativeMessaging",
+    "tabs",
+    "webNavigation",
+    "<all_urls>",
+    "notifications",
+    "contextMenus"
+  ],
+  
+  "background": {
+    "scripts": [
+      "src/common/constants.js",
+      "src/common/logger.js",
+      "src/common/utils.js",
+      "src/background/storage-manager.js",
+      "src/background/native-messaging.js",
+      "src/background/instruction-executor.js",
+      "src/background/background.js"
+    ],
+    "persistent": true
+  },
+  
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": [
+        "src/common/constants.js",
+        "src/common/logger.js",
+        "src/common/utils.js",
+        "src/content/element-selector.js",
+        "src/content/action-performer.js",
+        "src/content/safe-action-performer.js",
+        "src/content/recorder.js",
+        "src/content/content.js"
+      ],
+      "run_at": "document_start",
+      "all_frames": true
+    }
+  ],
+  
+  "browser_action": {
+    "default_popup": "src/popup/popup.html",
+    "default_title": "Web Automation Recorder",
+    "default_icon": {
+      "16": "icons/icon-16.png",
+      "32": "icons/icon-32.png",
+      "48": "icons/icon-48.png",
+      "128": "icons/icon-128.png"
+    }
+  },
+  
+  "options_ui": {
+    "page": "src/options/options.html",
+    "open_in_tab": true
+  },
+  
+  "icons": {
+    "48": "icons/icon-48.png",
+    "96": "icons/icon-128.png"
+  },
+  
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "webrecorder@extension",
+      "strict_min_version": "78.0"
+    }
+  },
+  
+  "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'"
+}

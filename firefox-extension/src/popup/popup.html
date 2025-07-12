@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Web Automation Assistant</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="popup-container">
+    <header class="popup-header">
+      <h1>Web Automation</h1>
+      <div class="connection-status" id="connectionStatus">
+        <span class="status-indicator" id="statusIndicator"></span>
+        <span class="status-text" id="statusText">Checking...</span>
+      </div>
+    </header>
+
+    <main class="popup-content">
+      <!-- Recording Section -->
+      <section class="recording-section" id="recordingSection">
+        <h2>Recording</h2>
+        <div class="recording-controls">
+          <button class="btn btn-primary btn-large" id="recordButton">
+            <span class="btn-icon">⏺</span>
+            <span class="btn-text">Start Recording</span>
+          </button>
+          <div class="recording-active" id="recordingActive" style="display: none;">
+            <div class="recording-status">
+              <span class="recording-indicator">⏺</span>
+              <span class="recording-text">Recording...</span>
+            </div>
+            <div class="recording-info" id="recordingInfo">
+              <div class="recording-timer">
+                <span class="timer-label">Duration:</span>
+                <span class="timer-value" id="recordingTimer">00:00</span>
+              </div>
+              <div class="recording-steps">
+                <span class="steps-label">Steps:</span>
+                <span class="steps-value" id="stepCount">0</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="recording-actions" id="recordingActions" style="display: none;">
+          <button class="btn btn-secondary" id="pauseButton">
+            <span class="btn-icon">⏸</span>
+            <span class="btn-text">Pause</span>
+          </button>
+          <button class="btn btn-danger" id="stopButton">
+            <span class="btn-icon">⏹</span>
+            <span class="btn-text">Stop</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- Quick Actions -->
+      <section class="quick-actions">
+        <h2>Quick Actions</h2>
+        <div class="action-buttons">
+          <button class="btn btn-secondary" id="manageButton">
+            <span class="btn-icon">📋</span>
+            <span class="btn-text">Manage Scripts</span>
+          </button>
+          <button class="btn btn-secondary" id="importButton">
+            <span class="btn-icon">📥</span>
+            <span class="btn-text">Import</span>
+          </button>
+          <button class="btn btn-secondary" id="exportButton">
+            <span class="btn-icon">📤</span>
+            <span class="btn-text">Export</span>
+          </button>
+          <button class="btn btn-secondary" id="settingsButton">
+            <span class="btn-icon">⚙️</span>
+            <span class="btn-text">Settings</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- Recent Scripts -->
+      <section class="recent-section">
+        <h2>Recent Scripts</h2>
+        <div class="instructions-list" id="recentInstructions">
+          <div class="loading">Loading scripts...</div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Hidden file input for import -->
+    <input type="file" id="importFile" accept=".json" style="display: none;">
+  </div>
+
+  <script src="../common/constants.js"></script>
+  <script src="../common/logger.js"></script>
+  <script src="../common/utils.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>

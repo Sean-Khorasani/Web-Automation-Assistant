@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Web Automation Assistant - Manage Scripts</title>
+  <link rel="stylesheet" href="options.css">
+</head>
+<body>
+  <div class="container">
+    <header class="header">
+      <div class="header-content">
+        <h1>Web Automation Scripts</h1>
+        <div class="header-actions">
+          <button class="btn btn-primary" id="newInstructionBtn">
+            <span class="btn-icon">➕</span>
+            New Script
+          </button>
+          <button class="btn btn-secondary" id="importBtn">
+            <span class="btn-icon">📥</span>
+            Import
+          </button>
+          <button class="btn btn-secondary" id="exportBtn">
+            <span class="btn-icon">📤</span>
+            Export All
+          </button>
+          <button class="btn btn-secondary" id="settingsBtn">
+            <span class="btn-icon">⚙️</span>
+            Settings
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <main class="main-content">
+      <aside class="sidebar">
+        <div class="search-box">
+          <input type="text" id="searchInput" placeholder="Search scripts..." class="search-input">
+        </div>
+        
+        <div class="filter-section">
+          <h3>Filter by</h3>
+          <div class="filter-group">
+            <label class="filter-label">
+              <input type="radio" name="filter" value="all" checked>
+              All Scripts
+            </label>
+            <label class="filter-label">
+              <input type="radio" name="filter" value="recent">
+              Recently Used
+            </label>
+            <label class="filter-label">
+              <input type="radio" name="filter" value="favorites">
+              Favorites
+            </label>
+          </div>
+        </div>
+
+        <div class="sort-section">
+          <h3>Sort by</h3>
+          <select id="sortSelect" class="sort-select">
+            <option value="modified-desc">Last Modified</option>
+            <option value="modified-asc">Oldest Modified</option>
+            <option value="name-asc">Name (A-Z)</option>
+            <option value="name-desc">Name (Z-A)</option>
+            <option value="created-desc">Newest First</option>
+            <option value="created-asc">Oldest First</option>
+          </select>
+        </div>
+
+        <div class="stats-section">
+          <h3>Statistics</h3>
+          <div class="stats-item">
+            <span class="stats-label">Total Scripts:</span>
+            <span class="stats-value" id="totalCount">0</span>
+          </div>
+          <div class="stats-item">
+            <span class="stats-label">Storage Used:</span>
+            <span class="stats-value" id="storageUsed">0 MB</span>
+          </div>
+        </div>
+      </aside>
+
+      <section class="content">
+        <div class="instructions-grid" id="instructionsGrid">
+          <div class="loading">Loading scripts...</div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Script Editor Modal -->
+    <div class="modal" id="editorModal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 id="editorTitle">Edit Script</h2>
+          <button class="modal-close" id="closeEditorBtn">&times;</button>
+        </div>
+        <div class="modal-body">
+          <div class="editor-tabs">
+            <button class="tab-btn active" data-tab="info">Information</button>
+            <button class="tab-btn" data-tab="steps">Steps</button>
+            <button class="tab-btn" data-tab="variables">Variables</button>
+            <button class="tab-btn" data-tab="json">JSON</button>
+          </div>
+
+          <!-- Information Tab -->
+          <div class="tab-content active" id="infoTab">
+            <div class="form-group">
+              <label for="instructionName">Name</label>
+              <input type="text" id="instructionName" class="form-input" placeholder="Enter script name">
+            </div>
+            <div class="form-group">
+              <label for="instructionUrl">URL Pattern</label>
+              <input type="text" id="instructionUrl" class="form-input" placeholder="https://example.com/*">
+              <small>Leave empty to run on any page</small>
+            </div>
+            <div class="form-group">
+              <label for="instructionDescription">Description</label>
+              <textarea id="instructionDescription" class="form-textarea" rows="3" placeholder="Optional description"></textarea>
+            </div>
+          </div>
+
+          <!-- Steps Tab -->
+          <div class="tab-content" id="stepsTab">
+            <div class="steps-toolbar">
+              <button class="btn btn-sm btn-secondary" id="addStepBtn">Add Step</button>
+              <button class="btn btn-sm btn-secondary" id="testStepsBtn">Test Steps</button>
+            </div>
+            <div class="steps-list" id="stepsList">
+              <!-- Steps will be rendered here -->
+            </div>
+          </div>
+
+          <!-- Variables Tab -->
+          <div class="tab-content" id="variablesTab">
+            <div class="variables-toolbar">
+              <button class="btn btn-sm btn-secondary" id="addVariableBtn">Add Variable</button>
+            </div>
+            <div class="variables-list" id="variablesList">
+              <!-- Variables will be rendered here -->
+            </div>
+          </div>
+
+          <!-- JSON Tab -->
+          <div class="tab-content" id="jsonTab">
+            <div class="json-toolbar">
+              <button class="btn btn-sm btn-secondary" id="formatJsonBtn">Format</button>
+              <button class="btn btn-sm btn-secondary" id="validateJsonBtn">Validate</button>
+            </div>
+            <textarea id="jsonEditor" class="json-editor" spellcheck="false"></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" id="cancelEditBtn">Cancel</button>
+          <button class="btn btn-primary" id="saveEditBtn">Save</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step Editor Modal -->
+    <div class="modal" id="stepEditorModal">
+      <div class="modal-content modal-sm">
+        <div class="modal-header">
+          <h2>Edit Step</h2>
+          <button class="modal-close" id="closeStepEditorBtn">&times;</button>
+        </div>
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="stepAction">Action</label>
+            <select id="stepAction" class="form-input">
+              <option value="click">Click</option>
+              <option value="input_text">Input Text</option>
+              <option value="select_option">Select Option</option>
+              <option value="wait_for_element">Wait for Element</option>
+              <option value="wait_for_condition">Wait for Condition</option>
+              <option value="wait_for_time">Wait for Time</option>
+              <option value="navigate">Navigate</option>
+              <option value="get_content">Get Content</option>
+              <option value="execute_script">Execute Script</option>
+              <option value="keyboard_shortcut">Keyboard Shortcut</option>
+            </select>
+          </div>
+          <div id="stepFields">
+            <!-- Dynamic fields based on action type -->
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" id="cancelStepBtn">Cancel</button>
+          <button class="btn btn-primary" id="saveStepBtn">Save</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div class="modal" id="settingsModal">
+      <div class="modal-content modal-sm">
+        <div class="modal-header">
+          <h2>Settings</h2>
+          <button class="modal-close" id="closeSettingsBtn">&times;</button>
+        </div>
+        <div class="modal-body">
+          <div class="form-group">
+            <label class="checkbox-label">
+              <input type="checkbox" id="autoSaveRecordings">
+              Auto-save recordings
+            </label>
+          </div>
+          <div class="form-group">
+            <label class="checkbox-label">
+              <input type="checkbox" id="nativeMessagingEnabled">
+              Enable native messaging
+            </label>
+          </div>
+          <div class="form-group">
+            <label for="defaultTimeout">Default timeout (ms)</label>
+            <input type="number" id="defaultTimeout" class="form-input" min="1000" max="60000" step="1000">
+          </div>
+          <div class="form-group">
+            <label for="logLevel">Log level</label>
+            <select id="logLevel" class="form-input">
+              <option value="debug">Debug</option>
+              <option value="info">Info</option>
+              <option value="warn">Warning</option>
+              <option value="error">Error</option>
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" id="cancelSettingsBtn">Cancel</button>
+          <button class="btn btn-primary" id="saveSettingsBtn">Save</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Hidden file input -->
+  <input type="file" id="importFile" accept=".json" style="display: none;">
+
+  <script src="../common/constants.js"></script>
+  <script src="../common/logger.js"></script>
+  <script src="../common/utils.js"></script>
+  <script src="../lib/sortable.min.js"></script>
+  <script src="options.js"></script>
+  <script src="editor.js"></script>
+</body>
+</html>

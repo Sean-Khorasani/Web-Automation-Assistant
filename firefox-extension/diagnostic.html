@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Extension Diagnostic</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .success { color: green; }
+        .error { color: red; }
+        .warning { color: orange; }
+        pre {
+            background: #f5f5f5;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+        button {
+            margin: 5px;
+            padding: 8px 15px;
+            background: #4A90E2;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #357ABD;
+        }
+        .log-entry {
+            margin: 5px 0;
+            padding: 5px;
+            background: #f9f9f9;
+            border-left: 3px solid #ddd;
+        }
+        .log-debug { border-left-color: #999; }
+        .log-info { border-left-color: #4A90E2; }
+        .log-warn { border-left-color: #FFA500; }
+        .log-error { border-left-color: #FF0000; }
+    </style>
+</head>
+<body>
+    <h1>Web Automation Extension Diagnostic</h1>
+    
+    <div class="section">
+        <h2>Extension Status</h2>
+        <div id="extension-status"></div>
+    </div>
+    
+    <div class="section">
+        <h2>Storage Check</h2>
+        <button onclick="checkStorage()">Check Storage</button>
+        <button onclick="clearStorage()">Clear All Storage</button>
+        <button onclick="testSaveInstruction()">Test Save Instruction</button>
+        <div id="storage-results"></div>
+    </div>
+    
+    <div class="section">
+        <h2>Settings</h2>
+        <button onclick="checkSettings()">Check Settings</button>
+        <button onclick="enableAutoSave()">Enable Auto-Save</button>
+        <div id="settings-results"></div>
+    </div>
+    
+    <div class="section">
+        <h2>Recent Logs</h2>
+        <button onclick="showLogs()">Show Logs</button>
+        <button onclick="clearLogs()">Clear Logs</button>
+        <div id="logs-container"></div>
+    </div>
+    
+    <div class="section">
+        <h2>Icon Test</h2>
+        <button onclick="testIcons()">Test Icon Loading</button>
+        <div id="icon-results"></div>
+    </div>
+    
+    <div class="section">
+        <h2>IndexedDB Status</h2>
+        <button onclick="checkIndexedDB()">Check IndexedDB</button>
+        <div id="db-results"></div>
+    </div>
+
+    <script>
+        // Check if extension APIs are available
+        function checkExtensionStatus() {
+            const status = document.getElementById('extension-status');
+            if (typeof browser !== 'undefined') {
+                status.innerHTML = '<p class="success">✓ Extension APIs available</p>';
+                
+                // Get manifest
+                const manifest = browser.runtime.getManifest();
+                status.innerHTML += `<p>Version: ${manifest.version}</p>`;
+                status.innerHTML += `<p>Name: ${manifest.name}</p>`;
+            } else {
+                status.innerHTML = '<p class="error">✗ Extension APIs not available</p>';
+            }
+        }
+        
+        // Check storage
+        async function checkStorage() {
+            const results = document.getElementById('storage-results');
+            results.innerHTML = '<p>Checking storage...</p>';
+            
+            try {
+                // Check all storage keys
+                const allData = await browser.storage.local.get(null);
+                const keys = Object.keys(allData);
+                
+                results.innerHTML = `<p>Found ${keys.length} items in storage:</p>`;
+                results.innerHTML += '<pre>' + JSON.stringify(allData, null, 2) + '</pre>';
+                
+                // Check for instructions specifically
+                const instructions = await browser.runtime.sendMessage({
+                    type: 'GET_ALL_INSTRUCTIONS'
+                });
+                
+                if (instructions.success) {
+                    results.innerHTML += `<p class="success">Found ${instructions.instructions.length} saved instructions</p>`;
+                    if (instructions.instructions.length > 0) {
+                        results.innerHTML += '<pre>' + JSON.stringify(instructions.instructions, null, 2) + '</pre>';
+                    }
+                }
+            } catch (error) {
+                results.innerHTML += `<p class="error">Error: ${error.message}</p>`;
+            }
+        }
+        
+        // Clear storage
+        async function clearStorage() {
+            if (confirm('This will delete all saved data. Continue?')) {
+                try {
+                    await browser.storage.local.clear();
+                    
+                    // Also clear IndexedDB
+                    const dbs = await indexedDB.databases();
+                    for (const db of dbs) {
+                        await indexedDB.deleteDatabase(db.name);
+                    }
+                    
+                    document.getElementById('storage-results').innerHTML = '<p class="success">Storage cleared</p>';
+                } catch (error) {
+                    document.getElementById('storage-results').innerHTML = `<p class="error">Error: ${error.message}</p>`;
+                }
+            }
+        }
+        
+        // Test saving an instruction
+        async function testSaveInstruction() {
+            const results = document.getElementById('storage-results');
+            results.innerHTML = '<p>Testing save...</p>';
+            
+            try {
+                const testInstruction = {
+                    name: 'Test Instruction ' + new Date().toLocaleTimeString(),
+                    url: 'https://example.com',
+                    steps: [
+                        { action: 'click', selector: { css: 'button' } },
+                        { action: 'wait_for_time', duration: 1000 }
+                    ],
+                    variables: {},
+                    created: new Date().toISOString(),
+                    modified: new Date().toISOString()
+                };
+                
+                const response = await browser.runtime.sendMessage({
+                    type: 'SAVE_INSTRUCTION',
+                    data: testInstruction
+                });
+                
+                if (response.success) {
+                    results.innerHTML += `<p class="success">✓ Test instruction saved with ID: ${response.id}</p>`;
+                } else {
+                    results.innerHTML += `<p class="error">✗ Failed to save: ${response.error}</p>`;
+                }
+            } catch (error) {
+                results.innerHTML += `<p class="error">Error: ${error.message}</p>`;
+            }
+        }
+        
+        // Check settings
+        async function checkSettings() {
+            const results = document.getElementById('settings-results');
+            results.innerHTML = '<p>Checking settings...</p>';
+            
+            try {
+                const settings = await browser.storage.local.get([
+                    'logLevel',
+                    'autoSaveRecordings',
+                    'nativeMessagingEnabled',
+                    'defaultTimeout'
+                ]);
+                
+                results.innerHTML = '<pre>' + JSON.stringify(settings, null, 2) + '</pre>';
+                
+                if (settings.autoSaveRecordings === false) {
+                    results.innerHTML += '<p class="warning">⚠ Auto-save is disabled</p>';
+                } else {
+                    results.innerHTML += '<p class="success">✓ Auto-save is enabled</p>';
+                }
+            } catch (error) {
+                results.innerHTML += `<p class="error">Error: ${error.message}</p>`;
+            }
+        }
+        
+        // Enable auto-save
+        async function enableAutoSave() {
+            try {
+                await browser.storage.local.set({ autoSaveRecordings: true });
+                document.getElementById('settings-results').innerHTML = '<p class="success">✓ Auto-save enabled</p>';
+                checkSettings();
+            } catch (error) {
+                document.getElementById('settings-results').innerHTML = `<p class="error">Error: ${error.message}</p>`;
+            }
+        }
+        
+        // Show logs
+        async function showLogs() {
+            const container = document.getElementById('logs-container');
+            container.innerHTML = '<p>Loading logs...</p>';
+            
+            try {
+                // Get logs from logger if available
+                if (typeof logger !== 'undefined') {
+                    const logs = logger.getLogs();
+                    container.innerHTML = '';
+                    
+                    logs.forEach(log => {
+                        const entry = document.createElement('div');
+                        entry.className = `log-entry log-${log.level}`;
+                        entry.innerHTML = `
+                            <strong>[${log.timestamp}] ${log.component}</strong>: ${log.message}
+                            ${log.data ? '<pre>' + JSON.stringify(log.data, null, 2) + '</pre>' : ''}
+                        `;
+                        container.appendChild(entry);
+                    });
+                } else {
+                    container.innerHTML = '<p class="warning">Logger not available in this context</p>';
+                }
+            } catch (error) {
+                container.innerHTML = `<p class="error">Error: ${error.message}</p>`;
+            }
+        }
+        
+        // Clear logs
+        function clearLogs() {
+            if (typeof logger !== 'undefined') {
+                logger.clearLogs();
+                document.getElementById('logs-container').innerHTML = '<p class="success">Logs cleared</p>';
+            }
+        }
+        
+        // Test icons
+        async function testIcons() {
+            const results = document.getElementById('icon-results');
+            results.innerHTML = '<p>Testing icons...</p>';
+            
+            const iconPaths = [
+                '/icons/icon-16.png',
+                '/icons/icon-32.png',
+                '/icons/icon-48.png',
+                '/icons/icon-128.png'
+            ];
+            
+            for (const path of iconPaths) {
+                const img = new Image();
+                img.src = browser.runtime.getURL(path);
+                
+                await new Promise((resolve) => {
+                    img.onload = () => {
+                        results.innerHTML += `<p class="success">✓ ${path}</p>`;
+                        results.appendChild(img);
+                        resolve();
+                    };
+                    img.onerror = () => {
+                        results.innerHTML += `<p class="error">✗ ${path}</p>`;
+                        resolve();
+                    };
+                });
+            }
+        }
+        
+        // Check IndexedDB
+        async function checkIndexedDB() {
+            const results = document.getElementById('db-results');
+            results.innerHTML = '<p>Checking IndexedDB...</p>';
+            
+            try {
+                const dbs = await indexedDB.databases();
+                results.innerHTML = `<p>Found ${dbs.length} databases:</p>`;
+                results.innerHTML += '<pre>' + JSON.stringify(dbs, null, 2) + '</pre>';
+                
+                // Try to open WebAutomationDB
+                const request = indexedDB.open('WebAutomationDB');
+                
+                request.onsuccess = (event) => {
+                    const db = event.target.result;
+                    results.innerHTML += `<p class="success">✓ WebAutomationDB opened successfully</p>`;
+                    results.innerHTML += `<p>Version: ${db.version}</p>`;
+                    results.innerHTML += `<p>Object stores: ${Array.from(db.objectStoreNames).join(', ')}</p>`;
+                    
+                    // Count instructions
+                    const transaction = db.transaction(['instructions'], 'readonly');
+                    const store = transaction.objectStore('instructions');
+                    const countRequest = store.count();
+                    
+                    countRequest.onsuccess = () => {
+                        results.innerHTML += `<p>Instructions count: ${countRequest.result}</p>`;
+                    };
+                    
+                    db.close();
+                };
+                
+                request.onerror = () => {
+                    results.innerHTML += `<p class="error">✗ Failed to open database</p>`;
+                };
+            } catch (error) {
+                results.innerHTML += `<p class="error">Error: ${error.message}</p>`;
+            }
+        }
+        
+        // Initialize
+        checkExtensionStatus();
+    </script>
+</body>
+</html>

@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Web Automation Extension Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1 {
+            color: #333;
+        }
+        .section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background: #f9f9f9;
+        }
+        .button-group {
+            margin: 20px 0;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            border: none;
+            border-radius: 4px;
+            background: #4A90E2;
+            color: white;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #357ABD;
+        }
+        input, select {
+            padding: 8px;
+            margin: 5px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        #result {
+            margin-top: 20px;
+            padding: 10px;
+            background: #e8f4f8;
+            border-radius: 4px;
+            min-height: 50px;
+        }
+        .loading-spinner {
+            display: none;
+            margin: 20px 0;
+        }
+        .loading-spinner.show {
+            display: block;
+        }
+        #dynamic-content {
+            margin: 20px 0;
+            padding: 20px;
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Web Automation Extension Test Page</h1>
+    
+    <div class="section">
+        <h2>Basic Actions</h2>
+        <div class="button-group">
+            <button id="click-me">Click Me</button>
+            <button id="right-click-me">Right Click Me</button>
+            <button id="delayed-button">Delayed Action (2s)</button>
+        </div>
+        <div id="click-result"></div>
+    </div>
+
+    <div class="section">
+        <h2>Form Inputs</h2>
+        <input type="text" id="text-input" placeholder="Enter text here">
+        <input type="email" id="email-input" placeholder="Enter email">
+        <select id="select-input">
+            <option value="">Select an option</option>
+            <option value="option1">Option 1</option>
+            <option value="option2">Option 2</option>
+            <option value="option3">Option 3</option>
+        </select>
+        <button id="submit-form">Submit</button>
+        <div id="form-result"></div>
+    </div>
+
+    <div class="section">
+        <h2>Dynamic Content</h2>
+        <button id="load-content">Load Dynamic Content</button>
+        <button id="start-animation">Start Animation</button>
+        <div class="loading-spinner" id="loading-spinner">Loading...</div>
+        <div id="dynamic-content"></div>
+    </div>
+
+    <div class="section">
+        <h2>Network Activity</h2>
+        <button id="fetch-data">Fetch Data (Simulated API Call)</button>
+        <button id="multiple-requests">Multiple Requests</button>
+        <div id="network-result"></div>
+    </div>
+
+    <div class="section">
+        <h2>Test Results</h2>
+        <div id="result"></div>
+    </div>
+
+    <script>
+        // Helper function to log results
+        function logResult(message) {
+            const result = document.getElementById('result');
+            const timestamp = new Date().toLocaleTimeString();
+            result.innerHTML += `<div>[${timestamp}] ${message}</div>`;
+        }
+
+        // Basic click handlers
+        document.getElementById('click-me').addEventListener('click', function() {
+            logResult('Button clicked!');
+            document.getElementById('click-result').textContent = 'Button was clicked at ' + new Date().toLocaleTimeString();
+        });
+
+        document.getElementById('right-click-me').addEventListener('contextmenu', function(e) {
+            e.preventDefault();
+            logResult('Button right-clicked!');
+            document.getElementById('click-result').textContent = 'Button was right-clicked at ' + new Date().toLocaleTimeString();
+        });
+
+        document.getElementById('delayed-button').addEventListener('click', function() {
+            logResult('Delayed action started...');
+            setTimeout(() => {
+                logResult('Delayed action completed!');
+                document.getElementById('click-result').textContent = 'Delayed action completed at ' + new Date().toLocaleTimeString();
+            }, 2000);
+        });
+
+        // Form handlers
+        document.getElementById('submit-form').addEventListener('click', function() {
+            const text = document.getElementById('text-input').value;
+            const email = document.getElementById('email-input').value;
+            const select = document.getElementById('select-input').value;
+            
+            const result = `Form submitted: Text="${text}", Email="${email}", Select="${select}"`;
+            logResult(result);
+            document.getElementById('form-result').textContent = result;
+        });
+
+        // Dynamic content
+        document.getElementById('load-content').addEventListener('click', function() {
+            const spinner = document.getElementById('loading-spinner');
+            spinner.classList.add('show');
+            logResult('Loading dynamic content...');
+            
+            setTimeout(() => {
+                spinner.classList.remove('show');
+                document.getElementById('dynamic-content').innerHTML = `
+                    <h3>Dynamic Content Loaded!</h3>
+                    <p>This content was loaded dynamically at ${new Date().toLocaleTimeString()}</p>
+                    <button class="dynamic-button">Dynamic Button</button>
+                `;
+                logResult('Dynamic content loaded');
+                
+                // Add handler to dynamic button
+                document.querySelector('.dynamic-button')?.addEventListener('click', function() {
+                    logResult('Dynamic button clicked!');
+                });
+            }, 1500);
+        });
+
+        // Animation
+        document.getElementById('start-animation').addEventListener('click', function() {
+            logResult('Animation started...');
+            const content = document.getElementById('dynamic-content');
+            let count = 0;
+            const interval = setInterval(() => {
+                count++;
+                content.innerHTML = `<div>Animation frame ${count}</div>`;
+                if (count >= 10) {
+                    clearInterval(interval);
+                    content.innerHTML += '<div>Animation completed!</div>';
+                    logResult('Animation completed');
+                }
+            }, 200);
+        });
+
+        // Network simulation
+        document.getElementById('fetch-data').addEventListener('click', async function() {
+            logResult('Fetching data...');
+            document.getElementById('network-result').textContent = 'Loading...';
+            
+            // Simulate API call with delay
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            const data = {
+                timestamp: new Date().toISOString(),
+                random: Math.random(),
+                message: 'Data fetched successfully'
+            };
+            
+            document.getElementById('network-result').textContent = JSON.stringify(data, null, 2);
+            logResult('Data fetched successfully');
+        });
+
+        document.getElementById('multiple-requests').addEventListener('click', async function() {
+            logResult('Starting multiple requests...');
+            document.getElementById('network-result').textContent = 'Loading multiple requests...';
+            
+            const requests = [];
+            for (let i = 0; i < 3; i++) {
+                requests.push(
+                    new Promise(resolve => 
+                        setTimeout(() => resolve(`Request ${i + 1} completed`), 1000 + i * 500)
+                    )
+                );
+            }
+            
+            const results = await Promise.all(requests);
+            document.getElementById('network-result').textContent = results.join('\n');
+            logResult('All requests completed');
+        });
+
+        // Log page load
+        logResult('Test page loaded');
+    </script>
+</body>
+</html>

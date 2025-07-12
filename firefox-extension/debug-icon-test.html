@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Icon Debug Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+        .icon-test {
+            margin: 10px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            display: inline-block;
+        }
+        img {
+            border: 1px solid #ccc;
+            margin: 5px;
+        }
+        .error {
+            color: red;
+        }
+        .success {
+            color: green;
+        }
+    </style>
+</head>
+<body>
+    <h1>Extension Icon Debug Test</h1>
+    
+    <h2>Icon Files Test</h2>
+    <div id="icon-tests"></div>
+    
+    <h2>Browser API Test</h2>
+    <div id="api-test"></div>
+    
+    <script>
+        const iconPaths = [
+            'icons/icon-16.png',
+            'icons/icon-32.png',
+            'icons/icon-48.png',
+            'icons/icon-128.png',
+            'icons/icon-recording-16.png',
+            'icons/icon-recording-32.png',
+            'icons/icon-recording-48.png',
+            'icons/icon-recording-128.png'
+        ];
+        
+        const container = document.getElementById('icon-tests');
+        
+        iconPaths.forEach(path => {
+            const div = document.createElement('div');
+            div.className = 'icon-test';
+            
+            const img = new Image();
+            img.src = path;
+            img.width = 32;
+            img.height = 32;
+            
+            const status = document.createElement('span');
+            status.textContent = ` ${path}: `;
+            
+            img.onload = () => {
+                status.innerHTML += '<span class="success">✓ Loaded</span>';
+            };
+            
+            img.onerror = () => {
+                status.innerHTML += '<span class="error">✗ Failed</span>';
+            };
+            
+            div.appendChild(img);
+            div.appendChild(status);
+            container.appendChild(div);
+        });
+        
+        // Test browser API
+        const apiTest = document.getElementById('api-test');
+        if (typeof browser !== 'undefined' && browser.browserAction) {
+            apiTest.innerHTML = '<p class="success">Browser API available</p>';
+            
+            // Try to get current icon
+            browser.browserAction.getTitle({}).then(title => {
+                apiTest.innerHTML += `<p>Current title: ${title}</p>`;
+            }).catch(error => {
+                apiTest.innerHTML += `<p class="error">Error getting title: ${error.message}</p>`;
+            });
+        } else {
+            apiTest.innerHTML = '<p class="error">Browser API not available (open this page from extension)</p>';
+        }
+    </script>
+</body>
+</html>
