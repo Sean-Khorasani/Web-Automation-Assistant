@@ -98,10 +98,10 @@ function updateIcon(recording, executing = false) {
     if (executing) {
       // Use different icon/title when executing
       iconPath = {
-        16: 'icons/icon-executing-16.png',
-        32: 'icons/icon-executing-32.png',
-        48: 'icons/icon-executing-48.png',
-        128: 'icons/icon-executing-128.png'
+        16: 'icons/icon-recording-16.png',
+        32: 'icons/icon-recording-32.png',
+        48: 'icons/icon-recording-48.png',
+        128: 'icons/icon-recording-128.png'
       };
       title = 'Executing script... Click to emergency stop';
     } else if (recording) {
