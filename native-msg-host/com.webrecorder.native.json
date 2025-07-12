@@ -1,7 +1,0 @@
-{
-  "name": "com.webrecorder.native",
-  "description": "Native messaging host for Web Recorder Extension",
-  "path": "Z:\\home\\shahin\\web_auto_ext\\native-msg-host\\host.bat",
-  "type": "stdio",
-  "allowed_extensions": ["webrecorder@extension"]
-}
